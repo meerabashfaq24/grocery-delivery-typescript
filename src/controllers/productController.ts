@@ -1,38 +1,43 @@
-const Product = require("../models/Product");
+import { Request, Response } from "express";
+import Product from "../models/Product";
+import { ApiResponse } from "../types";
 
 // Create Product
-const createProduct = async (req, res) => {
+const createProduct = async (req: Request, res: Response) => {
   try {
     const product = await Product.create(req.body);
 
-    res.status(201).json({
+    const response: ApiResponse<typeof product> = {
+      success: true,
+      data: product,
       message: "Product created successfully",
-      product,
-    });
-  } catch (error) {
+    };
+
+    res.status(201).json(response);
+  } catch (error: unknown) {
     res.status(500).json({
-      message: error.message,
+      message: error instanceof Error ? error.message : "Server error",
     });
   }
 };
 
 // Get All Products
-const getProducts = async (req, res) => {
+const getProducts = async (req: Request, res: Response) => {
   try {
     const products = await Product.find().populate("category");
 
     res.status(200).json(products);
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
-      message: error.message,
+      message: error instanceof Error ? error.message : "Server error",
     });
   }
 };
 
 // Get Single Product
-const getProductById = async (req, res) => {
+const getProductById = async (req: Request, res: Response) => {
   try {
-   const product = await Product.findById(req.params.id).populate("category");
+    const product = await Product.findById(req.params.id).populate("category");
 
     if (!product) {
       return res.status(404).json({
@@ -41,15 +46,15 @@ const getProductById = async (req, res) => {
     }
 
     res.status(200).json(product);
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
-      message: error.message,
+      message: error instanceof Error ? error.message : "Server error",
     });
   }
 };
 
 // Update Product
-const updateProduct = async (req, res) => {
+const updateProduct = async (req: Request, res: Response) => {
   try {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
@@ -67,15 +72,15 @@ const updateProduct = async (req, res) => {
       message: "Product updated successfully",
       product,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
-      message: error.message,
+      message: error instanceof Error ? error.message : "Server error",
     });
   }
 };
 
 // Delete Product
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (req: Request, res: Response) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
 
@@ -88,14 +93,14 @@ const deleteProduct = async (req, res) => {
     res.status(200).json({
       message: "Product deleted successfully",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
-      message: error.message,
+      message: error instanceof Error ? error.message : "Server error",
     });
   }
 };
 
-module.exports = {
+export {
   createProduct,
   getProducts,
   getProductById,

@@ -1,6 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Model, Types } from "mongoose";
 
-const orderSchema = new mongoose.Schema(
+interface IOrderProduct {
+  product: Types.ObjectId;
+  quantity: number;
+}
+
+export interface IOrder extends Document {
+  user: Types.ObjectId;
+  products: IOrderProduct[];
+  totalPrice: number;
+  address: string;
+  paymentMethod: "COD" | "Stripe";
+  paymentStatus: "Pending" | "Paid";
+  stripeSessionId: string;
+  status: string;
+}
+
+const orderSchema = new mongoose.Schema<IOrder>(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -25,10 +41,11 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
     address: {
-  type: String,
-  default: "",
-},
+      type: String,
+      default: "",
+    },
 
     paymentMethod: {
       type: String,
@@ -57,4 +74,9 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+const Order: Model<IOrder> = mongoose.model<IOrder>(
+  "Order",
+  orderSchema
+);
+
+export default Order;
