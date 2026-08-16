@@ -3,46 +3,69 @@ import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
 import "./Login.css";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface RegisterResponse {
+  message?: string;
+}
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterForm>({
     name: "",
     email: "",
     password: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
     try {
-      await api.post("/auth/register", formData);
+      await api.post<RegisterResponse>(
+        "/auth/register",
+        formData
+      );
 
       toast.success("Registration Successful!");
       navigate("/login");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Registration Error:", error);
 
-      toast.error(
-        error.response?.data?.message ||
-        error.message ||
-        "Registration Failed"
-      );
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "Registration Failed"
+        );
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Registration Failed");
+      }
     }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-
         <h1>Create Account 🛒</h1>
 
         <p
@@ -55,7 +78,6 @@ export default function Register() {
         </p>
 
         <form onSubmit={handleSubmit}>
-
           <input
             className="auth-input"
             type="text"
@@ -86,13 +108,9 @@ export default function Register() {
             required
           />
 
-          <button
-            className="auth-btn"
-            type="submit"
-          >
+          <button className="auth-btn" type="submit">
             Create Account
           </button>
-
         </form>
 
         <div
@@ -112,7 +130,6 @@ export default function Register() {
             Login here
           </Link>
         </div>
-
       </div>
     </div>
   );

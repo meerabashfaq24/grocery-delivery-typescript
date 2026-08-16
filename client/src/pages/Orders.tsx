@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import api from "../services/api";
 import "./Products.css";
 
+interface Order {
+  _id: string;
+  status: string;
+  products: unknown[];
+  address?: string;
+  totalPrice: number | string;
+}
+
 export default function Orders() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     fetchOrders();
@@ -13,14 +21,14 @@ export default function Orders() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await api.get("/orders", {
+      const res = await api.get<Order[]>("/orders", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       setOrders(res.data);
-    } catch (error) {
+    } catch (error: unknown) {
       console.log(error);
     }
   };
@@ -62,11 +70,7 @@ export default function Orders() {
                   🧾 Order #{order._id.slice(-6).toUpperCase()}
                 </h2>
 
-                <p
-                  style={{
-                    margin: "15px 0",
-                  }}
-                >
+                <p style={{ margin: "15px 0" }}>
                   <strong>Status:</strong>{" "}
                   <span
                     style={{
@@ -87,11 +91,7 @@ export default function Orders() {
                   </span>
                 </p>
 
-                <p
-                  style={{
-                    marginBottom: "12px",
-                  }}
-                >
+                <p style={{ marginBottom: "12px" }}>
                   🛒 <strong>Items:</strong> {order.products.length}
                 </p>
 
@@ -115,16 +115,10 @@ export default function Orders() {
                     fontSize: "30px",
                   }}
                 >
-                 ${Number(order.totalPrice).toFixed(2)}
+                  ${Number(order.totalPrice).toFixed(2)}
                 </h2>
 
-                <p
-                  style={{
-                    color: "#777",
-                  }}
-                >
-                  Total Amount
-                </p>
+                <p style={{ color: "#777" }}>Total Amount</p>
               </div>
             </div>
           ))}
